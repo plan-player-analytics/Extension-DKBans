@@ -22,33 +22,9 @@
  * SOFTWARE.
  *
  */
+
 package com.djrapitops.extension;
 
-import com.djrapitops.plan.extension.DataExtension;
-import com.djrapitops.plan.extension.extractor.ExtensionExtractor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-/**
- * Test for the implementation of the new extension
- *
- * @author Rsl1122
- */
-class ExtensionImplementationTest {
-
-    private ExtensionExtractor extractor;
-
-    @BeforeEach
-    void prepareExtractor() {
-        DataExtension extension = new DKBansExtension();
-        extractor = new ExtensionExtractor(extension);
-    }
-
-    @Test
-    @DisplayName("API is implemented correctly")
-    void noImplementationErrors() {
-        extractor.validateAnnotations();
-    }
-
+interface DKBListener {
+    void register();
 }

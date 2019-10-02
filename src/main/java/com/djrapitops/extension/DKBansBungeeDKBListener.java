@@ -22,33 +22,34 @@
  * SOFTWARE.
  *
  */
+
 package com.djrapitops.extension;
 
-import com.djrapitops.plan.extension.DataExtension;
-import com.djrapitops.plan.extension.extractor.ExtensionExtractor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import ch.dkrieger.bansystem.bungeecord.event.ProxiedDKBansNetworkPlayerEvent;
+import com.djrapitops.plan.extension.Caller;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.event.EventHandler;
 
-/**
- * Test for the implementation of the new extension
- *
- * @author Rsl1122
- */
-class ExtensionImplementationTest {
+public class DKBansBungeeDKBListener implements DKBListener, Listener {
 
-    private ExtensionExtractor extractor;
+    private final Caller caller;
 
-    @BeforeEach
-    void prepareExtractor() {
-        DataExtension extension = new DKBansExtension();
-        extractor = new ExtensionExtractor(extension);
+    public DKBansBungeeDKBListener(Caller caller) {
+        this.caller = caller;
     }
 
-    @Test
-    @DisplayName("API is implemented correctly")
-    void noImplementationErrors() {
-        extractor.validateAnnotations();
+    @Override
+    public void register() {
+        PluginManager pluginManager = ProxyServer.getInstance().getPluginManager();
+        Plugin plugin = pluginManager.getPlugin("Plan");
+        pluginManager.registerListener(plugin, this);
     }
 
+    @EventHandler
+    public void onPlayerEvent(ProxiedDKBansNetworkPlayerEvent event) {
+        caller.updatePlayerData(event.getUUID(), event.getPlayer().getName());
+    }
 }
