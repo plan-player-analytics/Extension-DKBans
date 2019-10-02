@@ -159,7 +159,7 @@ public class DKBansExtension implements DataExtension {
 
     @BooleanProvider(
             text = "Muted",
-            description = "Is the player muted on AdvancedBan",
+            description = "Is the player muted on DKBans",
             priority = 50,
             conditionName = "muted",
             iconName = "bell-slash",
