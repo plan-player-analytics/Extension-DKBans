@@ -22,33 +22,34 @@
  * SOFTWARE.
  *
  */
+
 package com.djrapitops.extension;
 
-import com.djrapitops.plan.extension.DataExtension;
-import com.djrapitops.plan.extension.extractor.ExtensionExtractor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import ch.dkrieger.bansystem.bukkit.event.BukkitDKBansNetworkPlayerEvent;
+import com.djrapitops.plan.extension.Caller;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 
-/**
- * Test for the implementation of the new extension
- *
- * @author Rsl1122
- */
-class ExtensionImplementationTest {
+public class DKBansBukkitDKBListener implements DKBListener, Listener {
 
-    private ExtensionExtractor extractor;
+    private final Caller caller;
 
-    @BeforeEach
-    void prepareExtractor() {
-        DataExtension extension = new DKBansExtension();
-        extractor = new ExtensionExtractor(extension);
+    public DKBansBukkitDKBListener(Caller caller) {
+        this.caller = caller;
     }
 
-    @Test
-    @DisplayName("API is implemented correctly")
-    void noImplementationErrors() {
-        extractor.validateAnnotations();
+    @Override
+    public void register() {
+        Plugin plan = Bukkit.getPluginManager().getPlugin("Plan");
+        Bukkit.getPluginManager().registerEvents(this, plan);
     }
+
+    @EventHandler
+    public void onPlayerEvent(BukkitDKBansNetworkPlayerEvent event) {
+        caller.updatePlayerData(event.getUUID(), event.getPlayer().getName());
+    }
+
 
 }

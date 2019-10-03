@@ -24,31 +24,46 @@
  */
 package com.djrapitops.extension;
 
+import com.djrapitops.plan.extension.Caller;
 import com.djrapitops.plan.extension.DataExtension;
-import com.djrapitops.plan.extension.extractor.ExtensionExtractor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 /**
- * Test for the implementation of the new extension
+ * Factory for the DKBans DataExtension.
  *
  * @author Rsl1122
+ * @author Vankka
  */
-class ExtensionImplementationTest {
+public class DKBansExtensionFactory {
 
-    private ExtensionExtractor extractor;
-
-    @BeforeEach
-    void prepareExtractor() {
-        DataExtension extension = new DKBansExtension();
-        extractor = new ExtensionExtractor(extension);
+    private boolean isAvailable(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
-    @Test
-    @DisplayName("API is implemented correctly")
-    void noImplementationErrors() {
-        extractor.validateAnnotations();
+    private boolean isAvailable() {
+        return isAvailable("ch.dkrieger.bansystem.lib.BanSystem");
     }
 
+    public Optional<DataExtension> createExtension() {
+        if (isAvailable()) {
+            return Optional.of(new DKBansExtension());
+        }
+        return Optional.empty();
+    }
+
+    public void registerListener(Caller caller) {
+        // Additional classes used to avoid NoClassDefFoundErrors
+        if (isAvailable("org.bukkit.event.EventHandler")) {
+            DKBBukkitListenerFactory.createBukkitListener(caller).register();
+        }
+        if (isAvailable("net.md_5.bungee.event.EventHandler")) {
+            DKBBungeeListenerFactory.createBungeeListener(caller).register();
+        }
+    }
 }
