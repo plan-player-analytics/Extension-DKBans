@@ -33,6 +33,8 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.UUID;
+
 public class DKBansBungeeDKBListener implements DKBListener, Listener {
 
     private final Caller caller;
@@ -50,6 +52,8 @@ public class DKBansBungeeDKBListener implements DKBListener, Listener {
 
     @EventHandler
     public void onPlayerEvent(ProxiedDKBansNetworkPlayerEvent event) {
-        caller.updatePlayerData(event.getUUID(), event.getPlayer().getName());
+        UUID playerUUID = event.getUUID();
+        if (playerUUID == null) return;
+        caller.updatePlayerData(playerUUID, event.getPlayer().getName());
     }
 }

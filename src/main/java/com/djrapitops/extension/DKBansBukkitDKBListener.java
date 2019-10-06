@@ -32,6 +32,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
+import java.util.UUID;
+
 public class DKBansBukkitDKBListener implements DKBListener, Listener {
 
     private final Caller caller;
@@ -48,7 +50,9 @@ public class DKBansBukkitDKBListener implements DKBListener, Listener {
 
     @EventHandler
     public void onPlayerEvent(BukkitDKBansNetworkPlayerEvent event) {
-        caller.updatePlayerData(event.getUUID(), event.getPlayer().getName());
+        UUID playerUUID = event.getUUID();
+        if (playerUUID == null) return;
+        caller.updatePlayerData(playerUUID, event.getPlayer().getName());
     }
 
 
