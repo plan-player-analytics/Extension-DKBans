@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test for the implementation of the new extension
  *
- * @author Rsl1122
+ * @author AuroraLS3
  */
 class ExtensionImplementationTest {
 
