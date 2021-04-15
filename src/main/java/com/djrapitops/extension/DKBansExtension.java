@@ -25,16 +25,19 @@
 package com.djrapitops.extension;
 
 import ch.dkrieger.bansystem.lib.BanSystem;
+import ch.dkrieger.bansystem.lib.player.NetworkPlayer;
 import ch.dkrieger.bansystem.lib.player.history.BanType;
 import ch.dkrieger.bansystem.lib.stats.NetworkStats;
 import ch.dkrieger.bansystem.lib.stats.PlayerStats;
 import com.djrapitops.plan.extension.CallEvents;
 import com.djrapitops.plan.extension.DataExtension;
 import com.djrapitops.plan.extension.FormatType;
+import com.djrapitops.plan.extension.NotReadyException;
 import com.djrapitops.plan.extension.annotation.*;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -89,7 +92,7 @@ public class DKBansExtension implements DataExtension {
             iconColor = Color.RED
     )
     public boolean isBanned(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).isBanned(BanType.NETWORK);
+        return getDKPlayer(playerUUID).isBanned(BanType.NETWORK);
     }
 
     @Conditional("banned")
@@ -102,7 +105,7 @@ public class DKBansExtension implements DataExtension {
             playerName = true
     )
     public String banIssuer(UUID playerUUID) {
-        return strip(getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.NETWORK).getStaffName());
+        return strip(getDKPlayer(playerUUID).getBan(BanType.NETWORK).getStaffName());
     }
 
     @Conditional("banned")
@@ -116,7 +119,7 @@ public class DKBansExtension implements DataExtension {
             format = FormatType.DATE_YEAR
     )
     public long banIssueDate(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.NETWORK).getTimeStamp();
+        return getDKPlayer(playerUUID).getBan(BanType.NETWORK).getTimeStamp();
     }
 
     @Conditional("banned")
@@ -130,7 +133,7 @@ public class DKBansExtension implements DataExtension {
             iconColor = Color.RED
     )
     public boolean banWillExpire(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.NETWORK).getTimeOut() > 0;
+        return getDKPlayer(playerUUID).getBan(BanType.NETWORK).getTimeOut() > 0;
     }
 
     @Conditional("ban_expires")
@@ -144,7 +147,7 @@ public class DKBansExtension implements DataExtension {
             format = FormatType.DATE_YEAR
     )
     public long banExpireDate(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.NETWORK).getTimeOut();
+        return getDKPlayer(playerUUID).getBan(BanType.NETWORK).getTimeOut();
     }
 
     @Conditional("banned")
@@ -157,7 +160,7 @@ public class DKBansExtension implements DataExtension {
             iconColor = Color.RED
     )
     public String banReason(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.NETWORK).getReason();
+        return getDKPlayer(playerUUID).getBan(BanType.NETWORK).getReason();
     }
 
     @BooleanProvider(
@@ -170,7 +173,7 @@ public class DKBansExtension implements DataExtension {
             showInPlayerTable = true
     )
     public boolean isMuted(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).isBanned(BanType.CHAT);
+        return getDKPlayer(playerUUID).isBanned(BanType.CHAT);
     }
 
     @Conditional("muted")
@@ -183,7 +186,7 @@ public class DKBansExtension implements DataExtension {
             playerName = true
     )
     public String muteIssuer(UUID playerUUID) {
-        return strip(getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.CHAT).getStaffName());
+        return strip(getDKPlayer(playerUUID).getBan(BanType.CHAT).getStaffName());
     }
 
     @Conditional("muted")
@@ -197,7 +200,7 @@ public class DKBansExtension implements DataExtension {
             format = FormatType.DATE_YEAR
     )
     public long muteIssueDate(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.CHAT).getTimeStamp();
+        return getDKPlayer(playerUUID).getBan(BanType.CHAT).getTimeStamp();
     }
 
     @Conditional("muted")
@@ -211,7 +214,7 @@ public class DKBansExtension implements DataExtension {
             iconColor = Color.DEEP_ORANGE
     )
     public boolean muteWillExpire(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.CHAT).getTimeOut() > 0;
+        return getDKPlayer(playerUUID).getBan(BanType.CHAT).getTimeOut() > 0;
     }
 
     @Conditional("mute_expires")
@@ -225,7 +228,7 @@ public class DKBansExtension implements DataExtension {
             format = FormatType.DATE_YEAR
     )
     public long muteExpireDate(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.CHAT).getTimeOut();
+        return getDKPlayer(playerUUID).getBan(BanType.CHAT).getTimeOut();
     }
 
     @Conditional("muted")
@@ -238,7 +241,7 @@ public class DKBansExtension implements DataExtension {
             iconColor = Color.DEEP_ORANGE
     )
     public String muteReason(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getBan(BanType.CHAT).getReason();
+        return getDKPlayer(playerUUID).getBan(BanType.CHAT).getReason();
     }
 
     @NumberProvider(
@@ -250,7 +253,7 @@ public class DKBansExtension implements DataExtension {
             showInPlayerTable = true
     )
     public long bans(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getStats().getBans();
+        return getDKPlayer(playerUUID).getStats().getBans();
     }
 
     @NumberProvider(
@@ -263,7 +266,14 @@ public class DKBansExtension implements DataExtension {
             showInPlayerTable = true
     )
     public long unbans(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getStats().getUnbans();
+        return getDKPlayer(playerUUID).getStats().getUnbans();
+    }
+
+    private NetworkPlayer getDKPlayer(UUID playerUUID) {
+        return Optional.ofNullable(getBanSystem())
+                .map(BanSystem::getPlayerManager)
+                .map(players -> players.getPlayer(playerUUID))
+                .orElseThrow(NotReadyException::new);
     }
 
     @NumberProvider(
@@ -276,7 +286,7 @@ public class DKBansExtension implements DataExtension {
             showInPlayerTable = true
     )
     public long mutes(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getStats().getMutes();
+        return getDKPlayer(playerUUID).getStats().getMutes();
     }
 
     @NumberProvider(
@@ -289,7 +299,7 @@ public class DKBansExtension implements DataExtension {
             showInPlayerTable = true
     )
     public long warnings(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getStats().getWarns();
+        return getDKPlayer(playerUUID).getStats().getWarns();
     }
 
     @NumberProvider(
@@ -302,7 +312,7 @@ public class DKBansExtension implements DataExtension {
             showInPlayerTable = true
     )
     public long reports(UUID playerUUID) {
-        return getBanSystem().getPlayerManager().getPlayer(playerUUID).getStats().getReports();
+        return getDKPlayer(playerUUID).getStats().getReports();
     }
 
     @PercentageProvider(
@@ -315,7 +325,7 @@ public class DKBansExtension implements DataExtension {
             showInPlayerTable = true
     )
     public double reportPercentage(UUID playerUUID) {
-        PlayerStats stats = getBanSystem().getPlayerManager().getPlayer(playerUUID).getStats();
+        PlayerStats stats = getDKPlayer(playerUUID).getStats();
         long accepted = stats.getReportsAccepted();
         return calculatePercentage(stats.getReportsDenied() + accepted, accepted);
     }
