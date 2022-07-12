@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  */
-package com.djrapitops.extension;
+package net.playeranalytics.extension.dkbans;
 
 import ch.dkrieger.bansystem.lib.BanSystem;
 import ch.dkrieger.bansystem.lib.player.NetworkPlayer;

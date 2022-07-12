@@ -22,14 +22,33 @@
  * SOFTWARE.
  *
  */
+package net.playeranalytics.extension.dkbans;
 
-package com.djrapitops.extension;
+import com.djrapitops.plan.extension.DataExtension;
+import com.djrapitops.plan.extension.extractor.ExtensionExtractor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-import com.djrapitops.plan.extension.Caller;
+/**
+ * Test for the implementation of the new extension
+ *
+ * @author AuroraLS3
+ */
+class ExtensionImplementationTest {
 
-public class DKBBungeeListenerFactory {
+    private ExtensionExtractor extractor;
 
-    static DKBListener createBungeeListener(Caller caller) {
-        return new DKBansBungeeDKBListener(caller);
+    @BeforeEach
+    void prepareExtractor() {
+        DataExtension extension = new DKBansExtension();
+        extractor = new ExtensionExtractor(extension);
     }
+
+    @Test
+    @DisplayName("API is implemented correctly")
+    void noImplementationErrors() {
+        extractor.validateAnnotations();
+    }
+
 }

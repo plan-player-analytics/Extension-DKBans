@@ -22,48 +22,38 @@
  * SOFTWARE.
  *
  */
-package com.djrapitops.extension;
 
+package net.playeranalytics.extension.dkbans;
+
+import ch.dkrieger.bansystem.bungeecord.event.ProxiedDKBansNetworkPlayerEvent;
 import com.djrapitops.plan.extension.Caller;
-import com.djrapitops.plan.extension.DataExtension;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.event.EventHandler;
 
-import java.util.Optional;
+import java.util.UUID;
 
-/**
- * Factory for the DKBans DataExtension.
- *
- * @author AuroraLS3
- * @author Vankka
- */
-public class DKBansExtensionFactory {
+public class DKBansBungeeDKBListener implements DKBListener, Listener {
 
-    private boolean isAvailable(String className) {
-        try {
-            Class.forName(className);
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
+    private final Caller caller;
+
+    public DKBansBungeeDKBListener(Caller caller) {
+        this.caller = caller;
     }
 
-    private boolean isAvailable() {
-        return isAvailable("ch.dkrieger.bansystem.lib.BanSystem");
+    @Override
+    public void register() {
+        PluginManager pluginManager = ProxyServer.getInstance().getPluginManager();
+        Plugin plugin = pluginManager.getPlugin("Plan");
+        pluginManager.registerListener(plugin, this);
     }
 
-    public Optional<DataExtension> createExtension() {
-        if (isAvailable()) {
-            return Optional.of(new DKBansExtension());
-        }
-        return Optional.empty();
-    }
-
-    public void registerListener(Caller caller) {
-        // Additional classes used to avoid NoClassDefFoundErrors
-        if (isAvailable("org.bukkit.event.EventHandler")) {
-            DKBBukkitListenerFactory.createBukkitListener(caller).register();
-        }
-        if (isAvailable("net.md_5.bungee.event.EventHandler")) {
-            DKBBungeeListenerFactory.createBungeeListener(caller).register();
-        }
+    @EventHandler
+    public void onPlayerEvent(ProxiedDKBansNetworkPlayerEvent event) {
+        UUID playerUUID = event.getUUID();
+        if (playerUUID == null) return;
+        caller.updatePlayerData(playerUUID, event.getPlayer().getName());
     }
 }

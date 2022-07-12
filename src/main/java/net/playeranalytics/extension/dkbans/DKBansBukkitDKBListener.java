@@ -23,14 +23,37 @@
  *
  */
 
-package com.djrapitops.extension;
+package net.playeranalytics.extension.dkbans;
 
+import ch.dkrieger.bansystem.bukkit.event.BukkitDKBansNetworkPlayerEvent;
 import com.djrapitops.plan.extension.Caller;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 
-public class DKBBukkitListenerFactory {
+import java.util.UUID;
 
-    static DKBListener createBukkitListener(Caller caller) {
-        return new DKBansBukkitDKBListener(caller);
+public class DKBansBukkitDKBListener implements DKBListener, Listener {
+
+    private final Caller caller;
+
+    public DKBansBukkitDKBListener(Caller caller) {
+        this.caller = caller;
     }
+
+    @Override
+    public void register() {
+        Plugin plan = Bukkit.getPluginManager().getPlugin("Plan");
+        Bukkit.getPluginManager().registerEvents(this, plan);
+    }
+
+    @EventHandler
+    public void onPlayerEvent(BukkitDKBansNetworkPlayerEvent event) {
+        UUID playerUUID = event.getUUID();
+        if (playerUUID == null) return;
+        caller.updatePlayerData(playerUUID, event.getPlayer().getName());
+    }
+
 
 }

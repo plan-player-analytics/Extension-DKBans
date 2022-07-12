@@ -23,8 +23,13 @@
  *
  */
 
-package com.djrapitops.extension;
+package net.playeranalytics.extension.dkbans;
 
-interface DKBListener {
-    void register();
+import com.djrapitops.plan.extension.Caller;
+
+public class DKBBungeeListenerFactory {
+
+    static DKBListener createBungeeListener(Caller caller) {
+        return new DKBansBungeeDKBListener(caller);
+    }
 }

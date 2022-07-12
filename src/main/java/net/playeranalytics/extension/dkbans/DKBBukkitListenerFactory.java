@@ -23,37 +23,14 @@
  *
  */
 
-package com.djrapitops.extension;
+package net.playeranalytics.extension.dkbans;
 
-import ch.dkrieger.bansystem.bungeecord.event.ProxiedDKBansNetworkPlayerEvent;
 import com.djrapitops.plan.extension.Caller;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.event.EventHandler;
 
-import java.util.UUID;
+public class DKBBukkitListenerFactory {
 
-public class DKBansBungeeDKBListener implements DKBListener, Listener {
-
-    private final Caller caller;
-
-    public DKBansBungeeDKBListener(Caller caller) {
-        this.caller = caller;
+    static DKBListener createBukkitListener(Caller caller) {
+        return new DKBansBukkitDKBListener(caller);
     }
 
-    @Override
-    public void register() {
-        PluginManager pluginManager = ProxyServer.getInstance().getPluginManager();
-        Plugin plugin = pluginManager.getPlugin("Plan");
-        pluginManager.registerListener(plugin, this);
-    }
-
-    @EventHandler
-    public void onPlayerEvent(ProxiedDKBansNetworkPlayerEvent event) {
-        UUID playerUUID = event.getUUID();
-        if (playerUUID == null) return;
-        caller.updatePlayerData(playerUUID, event.getPlayer().getName());
-    }
 }

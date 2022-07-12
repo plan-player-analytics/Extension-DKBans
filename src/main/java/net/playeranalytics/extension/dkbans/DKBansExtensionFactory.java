@@ -22,38 +22,48 @@
  * SOFTWARE.
  *
  */
+package net.playeranalytics.extension.dkbans;
 
-package com.djrapitops.extension;
-
-import ch.dkrieger.bansystem.bukkit.event.BukkitDKBansNetworkPlayerEvent;
 import com.djrapitops.plan.extension.Caller;
-import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
+import com.djrapitops.plan.extension.DataExtension;
 
-import java.util.UUID;
+import java.util.Optional;
 
-public class DKBansBukkitDKBListener implements DKBListener, Listener {
+/**
+ * Factory for the DKBans DataExtension.
+ *
+ * @author AuroraLS3
+ * @author Vankka
+ */
+public class DKBansExtensionFactory {
 
-    private final Caller caller;
-
-    public DKBansBukkitDKBListener(Caller caller) {
-        this.caller = caller;
+    private boolean isAvailable(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
-    @Override
-    public void register() {
-        Plugin plan = Bukkit.getPluginManager().getPlugin("Plan");
-        Bukkit.getPluginManager().registerEvents(this, plan);
+    private boolean isAvailable() {
+        return isAvailable("ch.dkrieger.bansystem.lib.BanSystem");
     }
 
-    @EventHandler
-    public void onPlayerEvent(BukkitDKBansNetworkPlayerEvent event) {
-        UUID playerUUID = event.getUUID();
-        if (playerUUID == null) return;
-        caller.updatePlayerData(playerUUID, event.getPlayer().getName());
+    public Optional<DataExtension> createExtension() {
+        if (isAvailable()) {
+            return Optional.of(new DKBansExtension());
+        }
+        return Optional.empty();
     }
 
-
+    public void registerListener(Caller caller) {
+        // Additional classes used to avoid NoClassDefFoundErrors
+        if (isAvailable("org.bukkit.event.EventHandler")) {
+            DKBBukkitListenerFactory.createBukkitListener(caller).register();
+        }
+        if (isAvailable("net.md_5.bungee.event.EventHandler")) {
+            DKBBungeeListenerFactory.createBungeeListener(caller).register();
+        }
+    }
 }
